@@ -1,6 +1,6 @@
 #[macro_use] extern crate rocket;
 
-use rocket::tokio::sync::broadcast::{channel};
+use rocket::{tokio::sync::broadcast::{channel, Sender}, form::Form, State};
 
 //getting request to the "/world" path
 #[get("/world")]
@@ -17,6 +17,13 @@ struct Message {
     pub username: String,
     pub message: String,
 }
+
+//endpoint to post messages
+#[post("/message", data = "<form>")]
+fn post(form: Form<Message>, queue: &State<Sender<Message>>) {
+    let _res = queue.send(form.into_inner());
+}
+
 
 #[launch]
 fn rocket() -> _ {
